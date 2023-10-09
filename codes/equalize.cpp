@@ -30,7 +30,7 @@ void histogram_equaliation(cv::Mat imageInput, cv::Mat *imageOutput){
 }
 
 int main(int argc, char** argv){
-    cv::Mat image, image_gray, image_gray_equalization;
+    cv::Mat image, image_gray;
     int width, height;
     cv::VideoCapture cap;
     cv::Mat histGray, histGrayEq;
@@ -60,13 +60,12 @@ int main(int argc, char** argv){
     
     cv::Mat histImgGray(histh, histw, CV_8UC1, cv::Scalar(0));
     cv::Mat histImgGrayEq(histh, histw, CV_8UC1, cv::Scalar(0));
+    cv::Mat image_gray_equalization(height, width, CV_8UC1, cv::Scalar(0));
 
     while(1){
         cap >> image;
 
         cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);
-
-        image_gray.copyTo(image_gray_equalization);
 
         histogram_equaliation(image_gray, &image_gray_equalization);
 

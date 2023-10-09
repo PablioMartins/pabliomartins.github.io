@@ -454,7 +454,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Esta primeira atividade deverá solicitar do usuário dois pontos, localizados dentro dos limites do tamanho de uma imagem, e exibir o negativo da imagem no interior do retangulo formado por esses dois pontos.</p>
 </div>
 <div class="paragraph">
-<p>O código esctrito na linguagem C++ é exposto a seguir:</p>
+<p>O código esctrito na linguagem C++ pode ser visto a seguir clicando em <strong>Show Code</strong>:</p>
 </div>
 <details>
 <summary class="title">Show Code</summary>
@@ -541,17 +541,17 @@ int main(int, char**){
 </div>
 </details>
 <div class="paragraph">
-<p>Os resultados são:</p>
+<p>O resultado é:</p>
 </div>
 <div class="openblock float-group">
 <div class="content">
-<div id="fig_biel_regions" class="imageblock left">
+<div class="imageblock left">
 <div class="content">
 <img src="images/biel.png" alt="A" width="240"/>
 </div>
 <div class="title">Figure 1. Imagem Original</div>
 </div>
-<div id="fig_regions" class="imageblock left">
+<div class="imageblock left">
 <div class="content">
 <img src="images/regions.png" alt="B" width="240"/>
 </div>
@@ -616,7 +616,7 @@ else {
 </div>
 </div>
 <div class="paragraph">
-<p>Nesta próxima etapa do codigo é feita uma varredura por toda a imagem trocando-se os pixel atual por seu valor inverso. O valor inverso é dado pela subtração do valor máximo de representação da cor (255) com o valor atual do pixel.</p>
+<p>Nesta próxima etapa do codigo, é feita uma varredura por todo bloco retangular obitido dos dois pontos fornecido, troca-se o pixel atual por seu valor inverso. O valor inverso é dado pela subtração do valor máximo da representação da cor (255) com o valor atual do pixel.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -682,13 +682,13 @@ int main(int, char**){
 </div>
 <div class="openblock float-group">
 <div class="content">
-<div id="fig_biel_regions" class="imageblock left">
+<div class="imageblock left">
 <div class="content">
 <img src="images/biel.png" alt="A" width="240"/>
 </div>
 <div class="title">Figure 3. Imagem Original</div>
 </div>
-<div id="fig_regions" class="imageblock left">
+<div class="imageblock left">
 <div class="content">
 <img src="images/repleaceregions.png" alt="B" width="240"/>
 </div>
@@ -792,7 +792,7 @@ int main(int argc, char** argv) {
 </div>
 <div class="openblock float-group">
 <div class="content">
-<div id="fig_biel_regions" class="imageblock left">
+<div class="imageblock left">
 <div class="content">
 <img src="images/senoide-256.png" alt="A" width="240"/>
 </div>
@@ -1221,7 +1221,7 @@ Total de Bolhas: 14<br/></p>
 <summary class="title">Show Code</summary>
 <div class="content">
 <div class="listingblock">
-<div class="title">labeling.cpp</div>
+<div class="title">equalize.cpp</div>
 <div class="content">
 <pre class="highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
 #include &lt;opencv2/opencv.hpp&gt;
@@ -1255,7 +1255,7 @@ void histogram_equaliation(cv::Mat imageInput, cv::Mat *imageOutput){
 }
 
 int main(int argc, char** argv){
-    cv::Mat image, image_gray, image_gray_equalization;
+    cv::Mat image, image_gray;
     int width, height;
     cv::VideoCapture cap;
     cv::Mat histGray, histGrayEq;
@@ -1285,13 +1285,12 @@ int main(int argc, char** argv){
 
     cv::Mat histImgGray(histh, histw, CV_8UC1, cv::Scalar(0));
     cv::Mat histImgGrayEq(histh, histw, CV_8UC1, cv::Scalar(0));
+    cv::Mat image_gray_equalization(height, width, CV_8UC1, cv::Scalar(0));
 
     while(1){
         cap &gt;&gt; image;
 
         cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);
-
-        image_gray.copyTo(image_gray_equalization);
 
         histogram_equaliation(image_gray, &amp;image_gray_equalization);
 
@@ -1345,6 +1344,115 @@ int main(int argc, char** argv){
 <div class="paragraph">
 <p>Comentários:</p>
 </div>
+<div class="paragraph">
+<p>Várias declarações são feita logo nas linhas iniciais da função <strong>main</strong>, dentre elas a variável <strong>cap</strong>. <strong>cap</strong> é um objeto do tipo <strong>VideoCapture</strong> responsável por receber um fluxo de frames de uma determinado dispositivo de vídeo. Para execução desse código foi utilizado a webcam embutida no notebook e a sua inicialização é feita através do seguinte comando:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cap.open(0);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida, é feito uma configuração no tamanhos dos frames a serem capturados pela câmera. Trecho a seguir:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As linhas de código:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::Mat histImgGray(histh, histw, CV_8UC1, cv::Scalar(0));
+cv::Mat histImgGrayEq(histh, histw, CV_8UC1, cv::Scalar(0));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>são matrizes que irão armazenar informações do histograma. Nesse trecho acima, as duas matrizes são declaradas e instanciadas, todas as posições delas são atribuidas o valor 0.</p>
+</div>
+<div class="paragraph">
+<p>A captura de um frame do fluxo é feita por:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cap &gt;&gt; image;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Logo em seguida, o frame capturado é convertido para uma imagem em tons de cinza, nota-se que o frame obtido inicialmente está no padrão RGB. Segue a linha responsável por essa tarefa.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::cvtColor(image, image_gray, cv::COLOR_BGR2GRAY);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Em seguida temos a equalização do histograma que é feita pela função <strong>histogram_equalization</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">void histogram_equaliation(cv::Mat imageInput, cv::Mat *imageOutput){
+    int histogram[256], histogram_accumulate[256];
+    float alpha = 255.0/(imageInput.cols * imageInput.rows);
+
+    histogram_computation(imageInput, histogram);
+    histogram_accumulate[0] = alpha * histogram[0];
+    for(int i = 1; i &lt; 256; i++){
+        histogram_accumulate[i] = histogram_accumulate[i-1] + (alpha * histogram[i]);
+    }
+
+    for(int i = 0; i &lt; imageInput.rows; i++){
+        for(int j = 0; j &lt; imageInput.cols; j++){
+            (*imageOutput).at&lt;uchar&gt;(i,j) = histogram_accumulate[imageInput.at&lt;uchar&gt;(i,j)];
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Basicamente a função acima faz o cálculo do histograma acumulado ponderando cada ponto por um fator <strong>alpha</strong>. O <strong>alpha</strong> é obtido dividindo o valor de cor máximo (255) pela quantidade de pixels da imagem. De posse do histograma aculmulado e feito o mapeamento de cada pixel da imagem no histograma aculmulado, gerando assim um novo frame equalizado.</p>
+</div>
+<div class="paragraph">
+<p>Nas linhas seguintes são feitas: o cálculo do histograma (com a funcão <strong>calcHist</strong> do pacote do opencv), a normalização e o preechimento das matrizes que serão utilizadas para desenhar o histograma na janela de exibição.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::calcHist(&amp;image_gray, 1, 0, cv::Mat(), histGray, 1,
+             &amp;nbins, &amp;histrange,
+             uniform, acummulate);
+cv::calcHist(&amp;image_gray_equalization, 1, 0, cv::Mat(), histGrayEq, 1,
+             &amp;nbins, &amp;histrange,
+             uniform, acummulate);
+
+cv::normalize(histGray, histGray, 0, histImgGray.rows, cv::NORM_MINMAX, -1, cv::Mat());
+cv::normalize(histGrayEq, histGrayEq, 0, histImgGrayEq.rows, cv::NORM_MINMAX, -1, cv::Mat());
+
+histImgGray.setTo(cv::Scalar(0));
+histImgGrayEq.setTo(cv::Scalar(0));
+
+for(int i=0; i&lt;nbins; i++){
+    cv::line(histImgGray,
+    cv::Point(i, histh),
+    cv::Point(i, histh-cvRound(histGray.at&lt;float&gt;(i))),
+    cv::Scalar(255), 1, 8, 0);
+    cv::line(histImgGrayEq,
+    cv::Point(i, histh),
+    cv::Point(i, histh-cvRound(histGrayEq.at&lt;float&gt;(i))),
+    cv::Scalar(255), 1, 8, 0);
+}
+
+histImgGray.copyTo(image_gray(cv::Rect(0, 0,nbins, histh)));
+histImgGrayEq.copyTo(image_gray_equalization(cv::Rect(0, 0,nbins, histh)));</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A exibição do fluxo de vídeo e feita por:
+cv::imshow("Image Normal", image_gray);
+cv::imshow("Equalizado", image_gray_equalization);</p>
+</div>
 </div>
 </div>
 </div>
@@ -1352,7 +1460,7 @@ int main(int argc, char** argv){
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-08 22:29:07 -0300
+Last updated 2023-10-09 12:00:03 -0300
 </div>
 </div>
 </body>
