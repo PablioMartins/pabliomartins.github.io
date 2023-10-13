@@ -1214,6 +1214,8 @@ Total de Bolhas: 14<br/></p>
 <div class="sect1">
 <h2 id="_atividade_05">Atividade 05</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_etapa_01_3">Etapa 01</h3>
 <div class="paragraph">
 <p>Esta atividade busca realizar a equalização do histograma durante a captura de uma câmera.</p>
 </div>
@@ -1449,9 +1451,191 @@ histImgGrayEq.copyTo(image_gray_equalization(cv::Rect(0, 0,nbins, histh)));</cod
 </div>
 </div>
 <div class="paragraph">
-<p>A exibição do fluxo de vídeo e feita por:
-cv::imshow("Image Normal", image_gray);
-cv::imshow("Equalizado", image_gray_equalization);</p>
+<p>A exibição do fluxo de vídeo e feita por:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::imshow("Image Normal", image_gray);
+cv::imshow("Equalizado", image_gray_equalization);</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_etapa_02_3">Etapa 02</h3>
+<div class="paragraph">
+<p>Nesta segunda etapa é proposto a realização de um detector de movimento. Sua implementação deu-se comparando um histograma passado com um corrente, foi usado apenas um canal de cor, nesse caso o vermelho.</p>
+</div>
+<div class="paragraph">
+<p>O código implementado:</p>
+</div>
+<details>
+<summary class="title">Show Code</summary>
+<div class="content">
+<div class="listingblock">
+<div class="title">equalize.cpp</div>
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+bool move_detection(cv::Mat hist_current, cv::Mat hist_old, int limiar){
+    double erro = 0;
+
+    for(int i=0; i &lt; 256; i++){
+        if(hist_current.at&lt;u_int8_t&gt;(i) != 0)
+            erro += abs((hist_current.at&lt;u_int8_t&gt;(i) - hist_old.at&lt;u_int8_t&gt;(i))/double(hist_current.at&lt;u_int8_t&gt;(i)));
+    }
+    erro = erro/256.0;
+    if(erro &gt; limiar)
+        return true;
+    else
+        return false;
+}
+
+int main(int argc, char **argv){
+    cv::Mat image;
+    int width, height;
+    cv::VideoCapture cap;
+    std::vector&lt;cv::Mat&gt; planes;
+    cv::Mat histR, histR_old, histG, histB;
+    int nbins = 64;
+    float range[] = {0, 255};
+    const float *histrange = { range };
+    bool uniform = true;
+    bool acummulate = false;
+    int key;
+    int limiar = 2.0;
+
+    cap.open(0);
+
+    if(!cap.isOpened()){
+        std::cout &lt;&lt; "Camera indisponivel";
+        return -1;
+    }
+
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    width = cap.get(cv::CAP_PROP_FRAME_WIDTH);
+    height = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+
+    std::cout &lt;&lt; "largura = " &lt;&lt; width &lt;&lt; std::endl;
+    std::cout &lt;&lt; "altura  = " &lt;&lt; height &lt;&lt; std::endl;
+
+    int histw = nbins, histh = nbins/2;
+    cv::Mat histImgR(histh, histw, CV_8UC3, cv::Scalar(0,0,0));
+    cv::Mat histImgG(histh, histw, CV_8UC3, cv::Scalar(0,0,0));
+    cv::Mat histImgB(histh, histw, CV_8UC3, cv::Scalar(0,0,0));
+
+    while (1){
+        cap &gt;&gt; image;
+        cv::split (image, planes);
+        cv::calcHist(&amp;planes[0], 1, 0, cv::Mat(), histB, 1,
+                    &amp;nbins, &amp;histrange,
+                    uniform, acummulate);
+        cv::calcHist(&amp;planes[1], 1, 0, cv::Mat(), histG, 1,
+                    &amp;nbins, &amp;histrange,
+                    uniform, acummulate);
+        cv::calcHist(&amp;planes[2], 1, 0, cv::Mat(), histR, 1,
+                    &amp;nbins, &amp;histrange,
+                    uniform, acummulate);
+
+        cv::normalize(histR, histR, 0, histImgR.rows, cv::NORM_MINMAX, -1, cv::Mat());
+        cv::normalize(histG, histG, 0, histImgG.rows, cv::NORM_MINMAX, -1, cv::Mat());
+        cv::normalize(histB, histB, 0, histImgB.rows, cv::NORM_MINMAX, -1, cv::Mat());
+
+        histImgR.setTo(cv::Scalar(0));
+        histImgG.setTo(cv::Scalar(0));
+        histImgB.setTo(cv::Scalar(0));
+
+        for(int i=0; i&lt;nbins; i++){
+            cv::line(histImgR,
+                cv::Point(i, histh),
+                cv::Point(i, histh-cvRound(histR.at&lt;float&gt;(i))),
+                cv::Scalar(0, 0, 255), 1, 8, 0);
+            cv::line(histImgG,
+                cv::Point(i, histh),
+                cv::Point(i, histh-cvRound(histG.at&lt;float&gt;(i))),
+                cv::Scalar(0, 255, 0), 1, 8, 0);
+            cv::line(histImgB,
+                cv::Point(i, histh),
+                cv::Point(i, histh-cvRound(histB.at&lt;float&gt;(i))),
+                cv::Scalar(255, 0, 0), 1, 8, 0);
+        }
+
+        histImgR.copyTo(image(cv::Rect(0, 0       ,nbins, histh)));
+        histImgG.copyTo(image(cv::Rect(0, histh   ,nbins, histh)));
+        histImgB.copyTo(image(cv::Rect(0, 2*histh ,nbins, histh)));
+
+        if(!histR_old.empty() &amp;&amp; move_detection(histR, histR_old, limiar)){
+            cv::putText(image, "Move Detect", cv::Point2d(height/2, width/2), cv::FONT_HERSHEY_SIMPLEX, 1,cv::Scalar(0,0,255));
+        }
+
+        cv::imshow("image", image);
+
+        histR.copyTo(histR_old);
+
+        key = cv::waitKey(30);
+        if(key == 27) break;
+    }
+    return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+</details>
+<div class="videoblock">
+<div class="title">Video Normal/Equalizador</div>
+<div class="content">
+<iframe src="https://www.youtube.com/embed/x0OueLljhzE?rel=0" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>Comentários:</p>
+</div>
+<div class="paragraph">
+<p>Basicamente foi adicionado uma função que compara o histograma de um frame anterior com o atual.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">bool move_detection(cv::Mat hist_current, cv::Mat hist_old, int limiar){
+    double erro = 0;
+
+    for(int i=0; i &lt; 256; i++){
+        if(hist_current.at&lt;u_int8_t&gt;(i) != 0)
+            erro += abs((hist_current.at&lt;u_int8_t&gt;(i) - hist_old.at&lt;u_int8_t&gt;(i))/double(hist_current.at&lt;u_int8_t&gt;(i)));
+    }
+    erro = erro/256.0;
+    if(erro &gt; limiar)
+        return true;
+    else
+        return false;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Essa função faz uma soma do erro entre todos os tons presente no histograma atual e antigo de forma culmulativa, e posteriormente divide pela quantidade de tons. Caso o valor desse erro esteja maior que um limiar a função retorna <strong>true</strong>, caso contrário retorna <strong>false</strong>.<br/>
+A chamada da função na main é:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">if(!histR_old.empty() &amp;&amp; move_detection(histR, histR_old, limiar)){
+            cv::putText(
+                image,
+                "Move Detect",
+                cv::Point2d(height/2, width/2),
+                cv::FONT_HERSHEY_SIMPLEX,
+                1,
+                cv::Scalar(0,0,255)
+            );
+        }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Sendo assim, caso seja detectado o movimento na cena é desenhado um texto <strong>Move Detect</strong> na tela.</p>
+</div>
 </div>
 </div>
 </div>
@@ -1460,7 +1644,7 @@ cv::imshow("Equalizado", image_gray_equalization);</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-10-09 12:00:03 -0300
+Last updated 2023-10-13 11:14:44 -0300
 </div>
 </div>
 </body>
