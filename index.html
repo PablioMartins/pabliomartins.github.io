@@ -1585,7 +1585,7 @@ int main(int argc, char **argv){
 </div>
 </details>
 <div class="videoblock">
-<div class="title">Video Normal/Equalizador</div>
+<div class="title">Video Detector de Movimento</div>
 <div class="content">
 <iframe src="https://www.youtube.com/embed/x0OueLljhzE?rel=0" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 </div>
@@ -1801,7 +1801,7 @@ int main(int, char **) {
 </div>
 </details>
 <div class="videoblock">
-<div class="title">Video Normal/Equalizador</div>
+<div class="title">Video Laplacian - Gauss</div>
 <div class="content">
 <iframe src="https://www.youtube.com/embed/tcLRgt_L_Ak?rel=0" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 </div>
@@ -1810,6 +1810,70 @@ int main(int, char **) {
 <div class="content">
 <div class="paragraph">
 <p>Comentários:</p>
+</div>
+<div class="paragraph">
+<p>Basicamento, foi adicionado ao código um vetor de máscara.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">std::vector&lt;cv::Mat&gt; mask = {cv::Mat(3, 3, CV_32F), cv::Mat(3,3,CV_32F)};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Quando, durante a execução do código, for precionado a tecla "<strong>e</strong>" seria aplicado dois filtros, o lapalacian e o gauss. Esse trecho de código é responsável por essa funcionalidas.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">case 'e':
+    mask[0] = cv::Mat(3, 3, CV_32F, laplacian);
+    mask[1] = cv::Mat(3, 3, CV_32F, gauss);
+    nameFilter[0] = "filtroespacial";
+    nameFilter[1] = "Laplacian - Gauss";
+    qtd_filter = 2;
+    break;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Um loop <strong>for</strong> é responsável por aplicar os dois filtros no frame.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">for(int i = 0; i &lt; qtd_filter; i++){
+    cv::filter2D(frame32f, frameFiltered, frame32f.depth(), mask[i], cv::Point(1, 1), 0);
+    if (absolut) {
+        frameFiltered = cv::abs(frameFiltered);
+    }
+    frameFiltered.convertTo(result, CV_8U);
+    cv::imshow(nameFilter[i], result);
+    frameFiltered.copyTo(frame32f);
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ao observar o filtro laplaciano puro e posteriormente com aplicação do filtro de gauss, podemos notar uma redução do ruido. Note, a imagem abaixo não está com valores absolutos para os pixels.</p>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/laplgauss_noabs.png" alt="A" width="640"/>
+</div>
+<div class="title">Figure 13. Laplacian vs laplacian-Gauss (no absolut)</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Ao habilitar os valores absolutos, temos uma melhora mais significativa com a redução melhor do ruído.</p>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/laplgauss_abs.png" alt="A" width="640"/>
+</div>
+<div class="title">Figure 14. Laplacian vs laplacian-Gauss (absolut)</div>
+</div>
+</div>
 </div>
 </div>
 </div>
