@@ -128,8 +128,8 @@ int main(int, char **) {
                 qtd_filter = 1;
                 break;
             case 'e':
-                mask[0] = cv::Mat(3, 3, CV_32F, laplacian);
-                mask[1] = cv::Mat(3, 3, CV_32F, gauss);
+                mask[0] = cv::Mat(3, 3, CV_32F, gauss);
+                mask[1] = cv::Mat(3, 3, CV_32F, laplacian);
                 nameFilter[0] = "filtroespacial";
                 nameFilter[1] = "Laplacian - Gauss";
                 qtd_filter = 2;

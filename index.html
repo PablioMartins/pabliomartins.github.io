@@ -1783,8 +1783,8 @@ int main(int, char **) {
                 qtd_filter = 1;
                 break;
             case 'e':
-                mask[0] = cv::Mat(3, 3, CV_32F, laplacian);
-                mask[1] = cv::Mat(3, 3, CV_32F, gauss);
+                mask[0] = cv::Mat(3, 3, CV_32F, gauss);
+                mask[1] = cv::Mat(3, 3, CV_32F, laplacian);
                 nameFilter[0] = "filtroespacial";
                 nameFilter[1] = "Laplacian - Gauss";
                 qtd_filter = 2;
@@ -1803,7 +1803,7 @@ int main(int, char **) {
 <div class="videoblock">
 <div class="title">Video Laplacian - Gauss</div>
 <div class="content">
-<iframe src="https://www.youtube.com/embed/tcLRgt_L_Ak?rel=0" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+<iframe src="https://www.youtube.com/embed/UBzxPtGNcbU?rel=0" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
 </div>
 </div>
 <div class="exampleblock">
@@ -1820,13 +1820,13 @@ int main(int, char **) {
 </div>
 </div>
 <div class="paragraph">
-<p>Quando, durante a execução do código, for precionado a tecla "<strong>e</strong>" seria aplicado dois filtros, o lapalacian e o gauss. Esse trecho de código é responsável por essa funcionalidas.</p>
+<p>Quando, durante a execução do código, for precionado a tecla "<strong>e</strong>" seria aplicado dois filtros, o gauss e o laplacian. Esse trecho de código é responsável por essa funcionalidas.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cpp" data-lang="cpp">case 'e':
-    mask[0] = cv::Mat(3, 3, CV_32F, laplacian);
-    mask[1] = cv::Mat(3, 3, CV_32F, gauss);
+    mask[0] = cv::Mat(3, 3, CV_32F, gauss);
+    mask[1] = cv::Mat(3, 3, CV_32F, laplacian);
     nameFilter[0] = "filtroespacial";
     nameFilter[1] = "Laplacian - Gauss";
     qtd_filter = 2;
@@ -1850,7 +1850,7 @@ int main(int, char **) {
 </div>
 </div>
 <div class="paragraph">
-<p>Ao observar o filtro laplaciano puro e posteriormente com aplicação do filtro de gauss, podemos notar uma redução do ruído. Note, a imagem abaixo não está com valores absolutos para os pixels.</p>
+<p>Ao observar o filtro laplaciano puro e posteriormente com aplicação do filtro de gauss, podemos notar uma redução do ruído é melhor maração das bordas. Note, a imagem abaixo não está com valores absolutos para os pixels.</p>
 </div>
 <div class="openblock float-group">
 <div class="content">
@@ -2103,7 +2103,7 @@ seguindo na função temos o calculo dos fatores de ponderação para cada linha
 <p>atenta-se para o valor de decaimento que pode assumir o valor 0 e incorrer em um erro de divisão por 0. Isso justifica a adição de um <strong>if</strong> para tratar esse problema.</p>
 </div>
 <div class="paragraph">
-<p>O próximo trecho da função é responsável por realizar a ponderação das imagens normal e borrada com as matrizes de ponderação geradas, para logo em seguida realizar a união das duas imagens e fazer sua exibição.</p>
+<p>O próximo trecho da função é responsável por realizar a ponderação das imagens normal e borrada com as matrizes de ponderação geradas, para logo em seguida realizar a união das duas imagens e faz a exibição do resultado obtido.</p>
 </div>
 <div class="listingblock">
 <div class="content">
