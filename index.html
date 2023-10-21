@@ -1850,7 +1850,7 @@ int main(int, char **) {
 </div>
 </div>
 <div class="paragraph">
-<p>Ao observar o filtro laplaciano puro e posteriormente com aplicação do filtro de gauss, podemos notar uma redução do ruido. Note, a imagem abaixo não está com valores absolutos para os pixels.</p>
+<p>Ao observar o filtro laplaciano puro e posteriormente com aplicação do filtro de gauss, podemos notar uma redução do ruído. Note, a imagem abaixo não está com valores absolutos para os pixels.</p>
 </div>
 <div class="openblock float-group">
 <div class="content">
@@ -1879,10 +1879,281 @@ int main(int, char **) {
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_atividade_07">Atividade 07</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Esta atividade consiste na implementação do efeito de ilusão ótica de miniaturização. Devem ser implementados: Ajuste de altura de foco; Ajuste de Decaimento; Posicionamento vertical do foco.</p>
+</div>
+<div class="paragraph">
+<p>O tiltshift trabalha com duas imagens de ponderação:</p>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/pondera.jpeg" alt="A" width="350"/>
+</div>
+<div class="title">Figure 15. Exemplo de imagens geradas para ponderação</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Ambas imagens acima são geradas para  que seja ponderado os pixels da imagem borrada e da imagem sem borramento para simular o efeito tiltshift.</p>
+</div>
+<div class="paragraph">
+<p>Para a geração dessas imagens foi utilizado a seguinte expressão matemática:</p>
+</div>
+<div class="stemblock">
+<div class="title">Equação</div>
+<div class="content">
+\$\alpha(x) = \frac{1}{2} \left( tanh \frac{x - l1}{d} - tanh \frac{x - l2}{d} \right)\$
+</div>
+</div>
+<div class="paragraph">
+<p>Sendo, l1 e l2 pontos centrais em que ocorre a transição 0 para 1 e de 1 para 0, respectivamente, e d a taxa de decaimento, ou seja, o qual rapida é a transição.</p>
+</div>
+<div class="paragraph">
+<p>O código implementado segue logo abaixo.</p>
+</div>
+<details>
+<summary class="title">Show Code</summary>
+<div class="content">
+<div class="listingblock">
+<div class="title">tiltshift.cpp</div>
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">#include &lt;iostream&gt;
+#include &lt;cstdio&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+int image_height, image_width;
+float point_down = 0, point_up = 0, decay = 0, vertical_position = 0;
+
+int height_slider = 0;
+int height_slider_max = 100;
+
+int decay_slider = 0;
+int decay_slider_max = 100;
+
+int vertical_position_slider = 0;
+int vertical_position_slider_max = 100;
+
+cv::Mat image, image_blurred, result;
+
+char TrackbarName[50];
+
+void show_image(){
+  cv::Mat weighting_mask(image_height, image_width, CV_32FC3);
+  cv::Mat weighting_mask_inverse(image_height, image_width, CV_32FC3);
+  float line_value;
+  float line_value_inverse;
+
+  for(int i = 0; i &lt; image_height; i++){
+
+    if (decay != 0){
+      line_value = 0.5*(tanh((i + vertical_position - point_down)/decay) - tanh((i + vertical_position - point_up)/decay));
+      line_value_inverse = 1.0 - line_value;
+    }
+    else {
+      line_value = 1.0;
+      line_value_inverse = 0.0;
+    }
+
+    for(int j = 0; j &lt; image_width; j++){
+      weighting_mask.at&lt;cv::Vec3f&gt;(i, j) = cv::Vec3f(line_value, line_value, line_value);
+      weighting_mask_inverse.at&lt;cv::Vec3f&gt;(i, j) = cv::Vec3f(line_value_inverse, line_value_inverse, line_value_inverse);
+    }
+
+  }
+
+  cv::Mat result_normal, result_inverse;
+
+  cv::multiply(image, weighting_mask, result_normal);
+  cv::multiply(image_blurred, weighting_mask_inverse, result_inverse);
+
+  cv::addWeighted(result_normal, 1.0, result_inverse, 1.0, 0.0, result);
+
+  result.convertTo(result, CV_8UC3);
+
+  cv::imshow("Tiltshift", result);
+}
+
+void on_trackbar_height(int, void*){
+  int height = image_height * height_slider / 100;
+  point_down = -height/2;
+  point_up = height/2;
+  show_image();
+}
+
+void on_trackbar_decay(int, void*){
+  decay = decay_slider;
+  show_image();
+}
+
+void on_trackbar_position(int, void*){
+  vertical_position = -vertical_position_slider * image_height / 100;
+  show_image();
+}
+
+int main(int argvc, char** argv){
+  image = cv::imread(argv[1]);
+
+  image.convertTo(image, CV_32FC3);
+
+  image_height = image.rows;
+  image_width = image.cols;
+
+  cv::GaussianBlur(image, image_blurred, cv::Size2i(17,17), 0);
+
+  cv::namedWindow("Tiltshift", 1);
+
+  std::sprintf( TrackbarName, "Posicao x %d", vertical_position_slider_max );
+  cv::createTrackbar( TrackbarName, "Tiltshift",
+                      &amp;vertical_position_slider,
+                      vertical_position_slider_max,
+                      on_trackbar_position);
+  on_trackbar_position(vertical_position_slider, 0 );
+
+  std::sprintf( TrackbarName, "Largura x %d", height_slider_max );
+  cv::createTrackbar( TrackbarName, "Tiltshift",
+                      &amp;height_slider,
+                      height_slider_max,
+                      on_trackbar_height );
+  on_trackbar_height(height_slider, 0 );
+
+  std::sprintf( TrackbarName, "Decaimento x %d", decay_slider_max );
+  cv::createTrackbar( TrackbarName, "Tiltshift",
+                      &amp;decay_slider,
+                      decay_slider_max,
+                      on_trackbar_decay );
+  on_trackbar_decay(decay_slider, 0 );
+
+  cv::waitKey(0);
+  return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+</details>
+<div class="paragraph">
+<p>Como resultado temos:</p>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/sp.png" alt="A" width="350"/>
+</div>
+<div class="title">Figure 16. imagem sp.png</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/atv_07.png" alt="B" width="350"/>
+</div>
+<div class="title">Figure 17. imagem sp.png com tiltshift</div>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>Comentários:</p>
+</div>
+<div class="paragraph">
+<p>Para produção do efeito precisaremos da imagem normal e a borrada. Para obter a imagem borrada foi ultilizado o filtro gaussiano com kernel 17x17, a escolha desse kernel foi por ficar visualmente mais agradável. segue a chamada do filtro:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::GaussianBlur(image, image_blurred, cv::Size2i(17,17), 0);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Seguindo nos comentários do código temos a função <strong>show_img()</strong>, essa é a função que produzirá o efeito tiltshift. É iniciado com a declaração de duas matrizes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::Mat weighting_mask(image_height, image_width, CV_32FC3);
+cv::Mat weighting_mask_inverse(image_height, image_width, CV_32FC3);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>essas duas vão armazenar as matrizes de ponderação.<br/>
+seguindo na função temos o calculo dos fatores de ponderação para cada linha da matriz de ponderação:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">for(int i = 0; i &lt; image_height; i++){
+    if (decay != 0){
+      line_value = 0.5*(tanh((i + vertical_position - point_down)/decay) - tanh((i + vertical_position - point_up)/decay));
+      line_value_inverse = 1.0 - line_value;
+    }
+    else {
+      line_value = 1.0;
+      line_value_inverse = 0.0;
+    }
+
+    for(int j = 0; j &lt; image_width; j++){
+      weighting_mask.at&lt;cv::Vec3f&gt;(i, j) = cv::Vec3f(line_value, line_value, line_value);
+      weighting_mask_inverse.at&lt;cv::Vec3f&gt;(i, j) = cv::Vec3f(line_value_inverse, line_value_inverse, line_value_inverse);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>atenta-se para o valor de decaimento que pode assumir o valor 0 e incorrer em um erro de divisão por 0. Isso justifica a adição de um <strong>if</strong> para tratar esse problema.</p>
+</div>
+<div class="paragraph">
+<p>O próximo trecho da função é responsável por realizar a ponderação das imagens normal e borrada com as matrizes de ponderação geradas, para logo em seguida realizar a união das duas imagens e fazer sua exibição.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::Mat result_normal, result_inverse;
+
+cv::multiply(image, weighting_mask, result_normal);
+cv::multiply(image_blurred, weighting_mask_inverse, result_inverse);
+
+cv::addWeighted(result_normal, 1.0, result_inverse, 1.0, 0.0, result);
+
+result.convertTo(result, CV_8UC3);
+
+cv::imshow("Tiltshift", result);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Os sliders são gerados com o método <strong>createTrackbar</strong> disponíveis jundo ao pacote do <strong>opencv</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 </div>
 </div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+})
+MathJax.Hub.Register.StartupHook("AsciiMath Jax Ready", function () {
+  MathJax.InputJax.AsciiMath.postfilterHooks.Add(function (data, node) {
+    if ((node = data.script.parentNode) && (node = node.parentNode) && node.classList.contains('stemblock')) {
+      data.math.root.display = "block"
+    }
+    return data
+  })
+})
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
 </body>
 </html>
