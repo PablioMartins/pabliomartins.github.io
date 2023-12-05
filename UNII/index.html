@@ -676,11 +676,10 @@ int main(int argc, char** argv) {
 <p>Nesta atividade devemos projetar um código que use as bordas produzidas pelo algoritmo de Canny e a técnica pontilhista para gerar uma imagem.</p>
 </div>
 <div class="paragraph">
-<p>segue o código desenvolvido:
-.Show Code</p>
+<p>segue o código desenvolvido:</p>
 </div>
 <details>
-<summary class="title">Details</summary>
+<summary class="title">Show Code</summary>
 <div class="content">
 <div class="listingblock">
 <div class="title">cannypoints.cpp</div>
@@ -764,10 +763,13 @@ int main(int argc, char **argv){
 <div class="content">
 <div class="imageblock left">
 <div class="content">
-<img src="images/paisagem.jpeg" alt="A" width="350"/>
+<img src="images/paisagem.jpg" alt="A" width="350"/>
 </div>
 </div>
 </div>
+</div>
+<div class="paragraph">
+<p>Inicialmente definimos alguns parametros que usaremos para gerar o pontilhismo na imagem.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -776,16 +778,44 @@ int main(int argc, char **argv){
 #define RATIO 3</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>Seguindo no código, o trecho abaixo gera a imagem das bordas com algoritimo de Canny. <strong>border</strong> recebe a imagem das bordas, o <strong>lowThreshold</strong> escolhido foi 50 e o <strong>ratio</strong>, 3.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cpp" data-lang="cpp">cv::Canny(image, border, lowThreshold, lowThreshold * ratio);</code></pre>
 </div>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/border_canny.png" alt="A" width="350"/>
+</div>
+<div class="title">Figure 4. Imagem gerada pelo algoritmo de Canny</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Nesse trecho, são redimencionados aos vetores <strong>xrange</strong> e <strong>yrange</strong> com base no tamanho da imagem e o passo que será usado para gerar o pontilhismo.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">xrange.resize(height / STEP);
+yrange.resize(width / STEP);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A função iota gera uma sequêncica de valores, nesse caso de 0 até preencher todos os elementos de vetor <strong>xrange</strong> e <strong>yrange</strong>, incrementando 1 de uma posição para a outra.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-cpp" data-lang="cpp">std::iota(xrange.begin(), xrange.end(), 0);
 std::iota(yrange.begin(), yrange.end(), 0);</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>No código abaixo, é feito o ajuste dos valores de <strong>xrange</strong> e <strong>yrange</strong>, para que eles correspondam a uma posição espaçada e represente posições de toda a imagem, como um grid.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -796,6 +826,9 @@ for(uint i = 0; i &lt; yrange.size(); i++){
   yrange[i] = yrange[i] * STEP + STEP / 2;
 }</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>Seguindo com o código, vamos calcular e preecher as bolinhas do pontilhismo, de forma aleatória, mas baseado nos pontos calculados em <strong>xrange</strong> e <strong>yrange</strong>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -817,6 +850,28 @@ for(auto i : xrange){
     }
   }
 }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A imagem gerada pelo algoritmo de Canny é usada durante o preenchimento para adicionar os pontos pretos nos locais de borda, esse papel é feito pelo <strong>if</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Como resultado, temos:</p>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/cannypoint.png" alt="A" width="350"/>
+</div>
+<div class="title">Figure 5. Pontilhismo + Bordas de Canny</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/point.png" alt="B" width="350"/>
+</div>
+<div class="title">Figure 6. Pontilhismo</div>
+</div>
 </div>
 </div>
 </div>
