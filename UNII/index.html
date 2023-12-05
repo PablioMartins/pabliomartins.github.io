@@ -828,7 +828,7 @@ for(uint i = 0; i &lt; yrange.size(); i++){
 </div>
 </div>
 <div class="paragraph">
-<p>Seguindo com o código, vamos calcular e preecher as bolinhas do pontilhismo, de forma aleatória, mas baseado nos pontos calculados em <strong>xrange</strong> e <strong>yrange</strong>.</p>
+<p>Seguindo com o código, vamos calcular e preecher as bolinhas do pontilhismo de forma aleatória, mas baseado nos pontos calculados em <strong>xrange</strong> e <strong>yrange</strong>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -881,7 +881,131 @@ for(auto i : xrange){
 <div class="sect1">
 <h2 id="_atividade_04">Atividade 04</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Nesta prática o intuito e usar o código <strong>kmeans.cpp</strong>, e executá-lo 10 vezes configurando os seguintes parametros: <strong>nRodadas=1</strong> e na função <strong>kmeans</strong> usar o <strong>KMEANS_RANDOM_CENTERS</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Segue o código utilizado com as devidas alterações.</p>
+</div>
+<details>
+<summary class="title">Show Code</summary>
+<div class="content">
+<div class="listingblock">
+<div class="title">dftfilter.cpp</div>
+<div class="content">
+<pre class="highlight"><code class="language-cpp" data-lang="cpp">#include &lt;cstdlib&gt;
+#include &lt;opencv2/opencv.hpp&gt;
 
+int main(int argc, char** argv) {
+  int nClusters = 8, nRodadas = 1;
+
+  cv::Mat rotulos, centros;
+
+  if (argc != 3) {
+    std::cout &lt;&lt; "kmeans entrada.jpg saida.jpg\n";
+    exit(0);
+  }
+
+  cv::Mat img = cv::imread(argv[1], cv::IMREAD_COLOR);
+  cv::Mat samples(img.rows * img.cols, 3, CV_32F);
+
+  for (int y = 0; y &lt; img.rows; y++) {
+    for (int x = 0; x &lt; img.cols; x++) {
+      for (int z = 0; z &lt; 3; z++) {
+        samples.at&lt;float&gt;(y + x * img.rows, z) = img.at&lt;cv::Vec3b&gt;(y, x)[z];
+      }
+    }
+  }
+
+  cv::kmeans(samples, nClusters, rotulos,
+             cv::TermCriteria(cv::TermCriteria::EPS | cv::TermCriteria::COUNT,
+                              10000, 0.0001),
+             nRodadas, cv::KMEANS_RANDOM_CENTERS, centros);
+
+  cv::Mat rotulada(img.size(), img.type());
+  for (int y = 0; y &lt; img.rows; y++) {
+    for (int x = 0; x &lt; img.cols; x++) {
+      int indice = rotulos.at&lt;int&gt;(y + x * img.rows, 0);
+      rotulada.at&lt;cv::Vec3b&gt;(y, x)[0] = (uchar)centros.at&lt;float&gt;(indice, 0);
+      rotulada.at&lt;cv::Vec3b&gt;(y, x)[1] = (uchar)centros.at&lt;float&gt;(indice, 1);
+      rotulada.at&lt;cv::Vec3b&gt;(y, x)[2] = (uchar)centros.at&lt;float&gt;(indice, 2);
+    }
+  }
+  cv::imshow("kmeans", rotulada);
+  cv::imwrite(argv[2], rotulada);
+  cv::waitKey();
+}</code></pre>
+</div>
+</div>
+</div>
+</details>
+<div class="paragraph">
+<p>Como resultado obtivemos:</p>
+</div>
+<div class="openblock float-group">
+<div class="content">
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r01.jpg" alt="A" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r02.jpg" alt="B" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r03.jpg" alt="C" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r04.jpg" alt="D" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r05.jpg" alt="E" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r06.jpg" alt="F" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r07.jpg" alt="G" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r08.jpg" alt="H" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r09.jpg" alt="I" width="250"/>
+</div>
+</div>
+<div class="imageblock left">
+<div class="content">
+<img src="images/sushi-kmeans_r10.jpg" alt="J" width="250"/>
+</div>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>Comentários:</p>
+</div>
+<div class="paragraph">
+<p>Como pode ser observado, não houve uma diferenciação tão expressiva, apenas algumas tonalidades de cor levemente diferentes e mudança nos contornos de uma imagem para outra. A cada nova geração dos clusters um novo valor é obtido, já que o algoritmo tenta achar o ponto de equilibrio com os outros clusters com base no valor inicial fornecido. Sendo assim, por ser um algoritmo não-deterministico a cada nova interação um novo cluster é encontrado, gerando difentes imagens, mas os novos clusters encontrados ficam em regiões bem próximas aos antigos.</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
