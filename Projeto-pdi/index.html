@@ -467,7 +467,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="title">Figure 1. Imagem</div>
 </div>
 <div class="paragraph">
-<p>Para que o algoritmo funcione corretamento é necessário que objetos e fundo sejam separáveis, não haja ruídos, os objetos não devem se localizar nas bordas da imagem. Há, também, outro fator que não foi considerado, as letras que possuem duas regiões distitas, como a letra "i" minúscula e as letras acentuadas. Logo, este algoritmo é voltado a apenas letras com regiões totalmente conectadas.</p>
+<p>Para que o algoritmo funcione corretamento é necessário que os objetos e o fundo sejam separáveis, não haja ruídos e os objetos não devem se localizar nas bordas da imagem. Há, também, outro fator que não foi considerado, as letras que possuem duas regiões distitas, como a letra "i" minúscula e as letras acentuadas. Logo, este algoritmo é voltado a apenas letras com regiões totalmente conectadas.</p>
 </div>
 </div>
 </div>
@@ -638,7 +638,7 @@ GCC = g++
 </div>
 </div>
 <div class="paragraph">
-<p>Para a correta execução do programa será necessário também criar um diretório chamado de "img" no mesmo local que está o executável do código, onde serão salvo os objetos extraídos da imagem. Depois de criado o driretório, a execução do programa pode ser efetudado com:</p>
+<p>Para a correta execução do programa será necessário também criar um diretório chamado de "img" no mesmo local que está o executável do código. Esse diretório será o local que irá receber os objetos extraídos da imagem. Depois de criado o driretório, a execução do programa pode ser efetudado com:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -652,7 +652,7 @@ GCC = g++
 <div class="sect2">
 <h3 id="_o_código">O Código</h3>
 <div class="paragraph">
-<p>Iniciaremos a discursão  apartir da função <strong>main</strong>. A função inicia-se com a declaração das variáveis que armazenarão a imagem e o resultado de sua binarização, <strong>image_gray</strong> e <strong>image_binary</strong>. Logo em seguida, são declarados o limiar que será usado na binarização, assim como o valor máximo que poderá ser assumido.</p>
+<p>Iniciaremos a discursão  apartir da função <strong>main</strong>. A função inicia-se com a declaração das variáveis que vão armazenar a imagem e o resultado de sua binarização, <strong>image_gray</strong> e <strong>image_binary</strong>. Logo em seguida, são declarados o limiar que será usado na binarização, assim como o valor máximo que poderá ser assumido na binarização.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -697,7 +697,7 @@ double valMax = 255.0;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>A função <strong>cut_out_object</strong> é responsável por varrer a imagem a procura de pixels pretos (valor 0) em pontos ainda não visitados. Ao encontrar ela chama a função <strong>extract_object</strong> passando como parâmetro o ponto encontrado.</p>
+<p>A função <strong>cut_out_object</strong> é responsável por varrer a imagem a procura de pixels pretos (valor 0) em pontos ainda não visitados. Ao encontrar ela chama a função <strong>extract_object</strong> passando como parâmetro esse pixel.</p>
 </div>
 <div class="paragraph">
 <p>Analizando as linhas de código da função <strong>cut_out_object</strong> temos:</p>
@@ -726,10 +726,10 @@ int num_object_current=0;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>O laço exposto, tem o objetivo de percorre a imagem marcando como visitado, através da variável <strong>visited</strong>, e procurando pixels pretos (com valor 0). Ao encontrar um pixel que não foi visitidado e preto é chamada a função <strong>extract_object</strong> que tem como parâmetros de entrada: a imagem binária, a matriz de visitados, o ponto atual e a quantidade de objetos já encontrados.</p>
+<p>O laço exposto, tem o objetivo de percorre a imagem marcando como visitado, através da matriz <strong>visited</strong>, e procurando pixels pretos (com valor 0). Ao encontrar um pixel que não foi visitidado e preto é chamada a função <strong>extract_object</strong> que tem como parâmetros de entrada: a imagem binária, a matriz de visitados, o ponto atual e a quantidade de objetos já encontrados.</p>
 </div>
 <div class="paragraph">
-<p>A função <strong>extract_object</strong> e responsável por identificar os pixels que limitam o objeto, formando um retângulo entorno do objeto, para extraí-lo.</p>
+<p>A função <strong>extract_object</strong> e responsável por identificar os pixels que limitam o objeto, formando um retângulo no entorno do objeto para extraí-lo.</p>
 </div>
 <div class="paragraph">
 <p>Detalhando um pouco mais a função temos, no seu início:</p>
@@ -759,7 +759,7 @@ StatesBorder operator+(StatesBorder state, int increment){
 <p>Dessa forma, haverá 8 estados "T1 &#8230;&#8203; T8" e a operação de soma que permitirá a transição de um estado para outro, de forma que: T1 + 1 = T2.</p>
 </div>
 <div class="paragraph">
-<p>Os estados foram definidos conforme a figura abaixo, em que no centro temos o pixel atual e sua visinhaça.</p>
+<p>Os estados foram definidos conforme a figura abaixo, em que no centro temos o pixel atual e sua vizinhaça.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -768,7 +768,7 @@ StatesBorder operator+(StatesBorder state, int increment){
 <div class="title">Figure 2. Estados</div>
 </div>
 <div class="paragraph">
-<p>Foi criado um vetor com o deslocamento para cada visinhaça:</p>
+<p>Foi criado um vetor com o deslocamento para cada vizinhaça a partir do ponto central:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -837,7 +837,7 @@ Logo em seguida, verifica se o novo pixel corrente já foi visitado. Essa linha 
 </div>
 </div>
 <div class="paragraph">
-<p>Seguindo, é verificado se o valor novo de "x" e o novo de "y" é menor que os valores de <strong>x_low</strong> e <strong>y_low</strong> ou maior que os valores de <strong>x_hight</strong> e <strong>y_hight</strong>, e caso seja é feita a atualização do valor.</p>
+<p>Seguindo, é verificado se o valor novo de "x" e o novo de "y" é menor que os valores de <strong>x_low</strong> e <strong>y_low</strong> ou maior que os valores de <strong>x_hight</strong> e <strong>y_hight</strong>, e, caso seja, é feita a atualização do valor.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -877,7 +877,7 @@ if(x_current &gt; x_hight) x_hight = x_current;</code></pre>
 <div class="title">Figure 3. Atualização do estado</div>
 </div>
 <div class="paragraph">
-<p>Logo após a atualização do pixel corrente, quando esse está na posição do estado T5, o novo estado deverá regredir para o estado T4. Observa-se que não foi definida a operação de subtração nos estados, porém, é possível, devido as transições serem ciclicas, somar 7 para chegar no estado T4. A mesma demostração é possível de ser feita  para os estados T1, T3 e T7.</p>
+<p>Logo após a atualização do pixel corrente, quando esse está na posição do estado T5, o novo estado deverá regredir para o estado T4, pois T1, T2 e T3 já foram visitados. Observa-se que não foi definida a operação de subtração nos estados, porém, é possível, devido as transições serem ciclicas, somar 7 para chegar no estado T4. A mesma demostração é possível de ser feita  para os estados T1, T3 e T7.</p>
 </div>
 <div class="paragraph">
 <p>Já quando o pixel foi encontrado na diagonal é necessário regredir dois estados, conforme mostra a figura.</p>
@@ -942,7 +942,7 @@ cv::imwrite(file_name, image_input(cv::Rect(y_low-1, x_low-1, y_hight - y_low+3,
 <div class="content">
 <img src="img/letter_3.png" alt="letter 3"/>
 </div>
-<div class="title">Figure 7. Segundo objeto extraído</div>
+<div class="title">Figure 7. Terceiro objeto extraído</div>
 </div>
 </div>
 </div>
